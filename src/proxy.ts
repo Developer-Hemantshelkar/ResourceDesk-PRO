@@ -9,7 +9,7 @@ const roleProtectedRoutes: Record<string, string> = {
   '/dashboard/member': 'MEMBER',
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   console.log("Middleware executed for path:", pathname);
 
