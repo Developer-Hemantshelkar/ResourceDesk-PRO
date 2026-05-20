@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer 
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
 } from 'recharts';
-import { 
-  Activity, MapPin, Folder, Layers, Calendar, Plus, Edit, Trash2, 
+import {
+  Activity, MapPin, Folder, Layers, Calendar, Plus, Edit, Trash2,
   Check, X, Loader2, AlertCircle, ShieldAlert, LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,7 @@ export default function AdminConsole() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'create' | 'edit'>('create');
   const [targetType, setTargetType] = useState<'resource' | 'location' | 'category' | null>(null);
-  
+
   // Selected Item for Editing/Deleting
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
@@ -57,6 +57,7 @@ export default function AdminConsole() {
       const res = await fetch('/api/analytics/audit?take=20');
       if (!res.ok) throw new Error('Failed to load audit logs');
       const json = await res.json();
+      console.log(json);
       return json.logs;
     },
   });
@@ -275,7 +276,7 @@ export default function AdminConsole() {
 
   return (
     <div className="p-8 space-y-8 bg-slate-950/20 min-h-screen">
-      
+
       {/* Top Banner */}
       <header className="flex justify-between items-center pb-6 border-b border-slate-900">
         <div>
@@ -300,11 +301,10 @@ export default function AdminConsole() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`py-3 px-6 text-sm font-semibold border-b-2 capitalize transition-all duration-300 whitespace-nowrap cursor-pointer ${
-              activeTab === tab
+            className={`py-3 px-6 text-sm font-semibold border-b-2 capitalize transition-all duration-300 whitespace-nowrap cursor-pointer ${activeTab === tab
                 ? 'border-indigo-500 text-white bg-indigo-500/5'
                 : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-800'
-            }`}
+              }`}
           >
             {tab}
           </button>
@@ -313,7 +313,7 @@ export default function AdminConsole() {
 
       {/* Tab Panels */}
       <div className="space-y-6">
-        
+
         {/* TAB 1: OVERVIEW */}
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-fadeIn">
@@ -378,15 +378,15 @@ export default function AdminConsole() {
                         <ResponsiveContainer width="100%" height="100%">
                           <LineChart data={summary.daily}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                            <XAxis 
-                              dataKey="day" 
-                              stroke="#64748b" 
-                              tickFormatter={(d) => new Date(d).toLocaleDateString([], { month: 'short', day: 'numeric' })} 
+                            <XAxis
+                              dataKey="day"
+                              stroke="#64748b"
+                              tickFormatter={(d) => new Date(d).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                             />
                             <YAxis stroke="#64748b" allowDecimals={false} />
-                            <Tooltip 
+                            <Tooltip
                               contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#f8fafc' }}
-                              labelFormatter={(d) => new Date(d).toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} 
+                              labelFormatter={(d) => new Date(d).toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                             />
                             <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} activeDot={{ r: 8 }} name="Bookings" />
                           </LineChart>
@@ -519,13 +519,12 @@ export default function AdminConsole() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border ${
-                            res.status === 'AVAILABLE'
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border ${res.status === 'AVAILABLE'
                               ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/20'
                               : res.status === 'ALLOCATED'
-                              ? 'bg-blue-950/40 text-blue-400 border-blue-500/20'
-                              : 'bg-amber-950/40 text-amber-400 border-amber-500/20'
-                          }`}>
+                                ? 'bg-blue-950/40 text-blue-400 border-blue-500/20'
+                                : 'bg-amber-950/40 text-amber-400 border-amber-500/20'
+                            }`}>
                             {res.status}
                           </span>
                         </TableCell>
@@ -704,13 +703,12 @@ export default function AdminConsole() {
                           {new Date(booking.endTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
                         </TableCell>
                         <TableCell>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border ${
-                            booking.status === 'CONFIRMED'
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border ${booking.status === 'CONFIRMED'
                               ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/20'
                               : booking.status === 'PENDING'
-                              ? 'bg-amber-950/40 text-amber-400 border-amber-500/20'
-                              : 'bg-rose-950/40 text-rose-400 border-rose-500/20'
-                          }`}>
+                                ? 'bg-amber-950/40 text-amber-400 border-amber-500/20'
+                                : 'bg-rose-950/40 text-rose-400 border-rose-500/20'
+                            }`}>
                             {booking.status}
                           </span>
                         </TableCell>
@@ -788,7 +786,7 @@ export default function AdminConsole() {
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="space-y-5 pt-4">
-              
+
               {/* Name Field */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Name</label>
@@ -889,8 +887,8 @@ export default function AdminConsole() {
               {targetType === 'resource' && modalType === 'edit' && (
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</label>
-                  <Select 
-                    onValueChange={(val: any) => setStatusVal(val)} 
+                  <Select
+                    onValueChange={(val: any) => setStatusVal(val)}
                     value={statusVal}
                   >
                     <SelectTrigger className="w-full bg-slate-950 border-slate-800 text-slate-100 focus:ring-indigo-500">
@@ -907,17 +905,17 @@ export default function AdminConsole() {
               )}
 
               <DialogFooter className="pt-4 border-t border-slate-800 flex justify-between gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={closeFormModal} 
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closeFormModal}
                   className="border-slate-800 text-slate-300 hover:bg-slate-900 cursor-pointer rounded-xl font-semibold"
                 >
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
-                  disabled={createMutation.isPending || updateMutation.isPending} 
+                <Button
+                  type="submit"
+                  disabled={createMutation.isPending || updateMutation.isPending}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer transition rounded-xl font-semibold"
                 >
                   {createMutation.isPending || updateMutation.isPending ? (
