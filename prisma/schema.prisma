@@ -2,24 +2,27 @@ generator client {
   provider = "prisma-client-js"
 }
 
-dataSource db {
+datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url = env("DATABASE_URL")
 }
+
 
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
   name      String?
-  role      Role     @default(USER)
-  bookings  Booking[]
+  role      Role     @default(MEMBER)
+  bookings Booking[]
+  bookingRequests BookingRequest[]
+  auditLogs AuditLog[]
 }
 
 enum Role {
   ADMIN
-  MANAGER
-  USER
+  OPERATIONS
+  MEMBER
 }
 
 model Resource {
@@ -27,7 +30,16 @@ model Resource {
   name        String
   description String?
   capacity    Int?
-  bookings    Booking[]
+  bookings Booking[]
+  allocations Allocation[]
+  bookingRequests BookingRequest[]
+  status      ResourceStatus @default(AVAILABLE)
+  locationId  Int?
+  location    Location? @relation(fields: [locationId], references: [id])
+  categoryId  Int?
+  category    Category? @relation(fields: [categoryId], references: [id])
+
+  @@index([status])
 }
 
 model Booking {
@@ -41,8 +53,74 @@ model Booking {
   status      BookingStatus @default(PENDING)
 }
 
+enum ResourceStatus {
+  AVAILABLE
+  ALLOCATED
+  UNDER_MAINTENANCE
+  INACTIVE
+}
 enum BookingStatus {
   PENDING
   CONFIRMED
   CANCELLED
+}
+
+model Location {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  address   String?
+  resources Resource[]
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  resources   Resource[]
+}
+
+model Allocation {
+  id               Int      @id @default(autoincrement())
+  resource         Resource @relation(fields: [resourceId], references: [id])
+  resourceId       Int
+  bookingRequest   BookingRequest @relation("AllocationToRequest", fields: [bookingRequestId], references: [id])
+  bookingRequestId Int @unique
+  allocatedAt      DateTime @default(now())
+}
+
+model BookingRequest {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  resource    Resource @relation(fields: [resourceId], references: [id])
+  resourceId  Int
+  startTime   DateTime
+  endTime     DateTime
+  status      BookingStatus @default(PENDING)
+  allocation  Allocation? @relation("AllocationToRequest")
+
+  @@index([status])
+}
+
+enum AuditAction {
+  BOOKING_CREATED
+  BOOKING_APPROVED
+  BOOKING_DENIED
+  ALLOCATION_CREATED
+  ALLOCATION_RELEASED
+  RESOURCE_CREATED
+  RESOURCE_UPDATED
+  RESOURCE_DELETED
+}
+
+model AuditLog {
+  id          Int          @id @default(autoincrement())
+  action      AuditAction
+  entityId    Int?
+  entityType  String?
+  performedByUserId Int
+  timestamp   DateTime     @default(now())
+  details     Json?
+  @@index([entityType, entityId, timestamp])
+  user        User @relation(fields: [performedByUserId], references: [id])
 }
